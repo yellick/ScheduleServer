@@ -1,0 +1,37 @@
+on:
+    push:
+      branches:
+        - main
+    pull_request:
+      branches:
+        - main
+  
+  jobs:
+    deploy:
+      name: Deploy to Server
+      runs-on: ubuntu-latest
+  
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v4
+  
+        - name: Set up SSH
+          run: |
+            mkdir -p ~/.ssh
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan -H ${{ vars.SERVER_HOST }} >> ~/.ssh/known_hosts
+  
+        - name: Copy via rsync
+          run: |
+            rsync -av --delete --exclude=".env" --exclude=".git/" --exclude=".github/" ./ ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:~/stacks/schApi/app
+  
+        - name: Docker build
+          uses: appleboy/ssh-action@master
+          with:
+            host: ${{ vars.SERVER_HOST }}
+            username: ${{ vars.SERVER_USER }}
+            key: ${{ secrets.SSH_PRIVATE_KEY }}
+            script: |
+              cd ~/stacks/python
+              docker compose up --build -d
