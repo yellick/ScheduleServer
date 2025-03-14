@@ -1,12 +1,11 @@
-# Используем официальный образ Python 3.13.1
-FROM python:3.13.2-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-build-essential \
-python3-dev \
-&& rm -rf /var/lib/apt/lists/*
+    build-essential \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
@@ -16,4 +15,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["uwsgi", "--http", "0.0.0.0:5000", "--module", "main:main"]
+CMD ["uwsgi", "--http", "0.0.0.0:5000", "--module", "main:app"]
