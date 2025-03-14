@@ -1,5 +1,5 @@
 # Используем официальный образ Python 3.13.1
-FROM python:3.13.1-slim
+FROM python:3.13.2-slim
 
 WORKDIR /app
 
