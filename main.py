@@ -15,4 +15,8 @@ app.route('/start_session', methods=['POST'])(start_session)
 app.route('/check_session', methods=['POST'])(check_session)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    host = '0.0.0.0'  # Важно для Docker!
+    port = 5000       # Должен совпадать с портом в compose
+    
+    show_routes(host, port)
+    app.run(host=host, port=port)
