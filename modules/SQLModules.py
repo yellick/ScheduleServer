@@ -37,13 +37,8 @@ def print_debug(fn, status, response):
 
 # func for hash
 def hash_string(input_string):
-    # Создаем объект SHA-256
     sha256 = hashlib.sha256()
-
-    # Обновляем объект хеша с байтами строки
     sha256.update(input_string.encode('utf-8'))
-
-    # Получаем хеш в виде шестнадцатеричного числа
     hashed_string = sha256.hexdigest()
 
     return hashed_string
