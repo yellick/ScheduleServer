@@ -48,41 +48,32 @@ class SQL:
     @staticmethod
     def check_connection():
         func_name = inspect.currentframe().f_code.co_name
-
         status = SQLStat.err_unknown()
         response = {
             'server': True,
-            'database': False
+            'database': False,
+            'error': None
         }
 
         try:
             connection = connect_to_db()
-
             if connection is None:
                 status = SQLStat.err_db_con()
-                # debug
+                response['error'] = "Database connection failed"
                 if config.debug_mode:
                     print_debug(func_name, status, response)
-
                 return SQLReturn(status, response)
 
             connection.close()
-
             status = SQLStat.succ()
             response['database'] = True
-            
-            # debug
-            if config.debug_mode:
-                print_debug(func_name, status, response)
 
         except Exception as e:
             status = SQLStat.err_db_con()
-            response = e
+            response['error'] = str(e)  # Важно: сохраняем текст ошибки, а не объект
 
-            # debug
-            if config.debug_mode:
-                print_debug(func_name, status, response)
-
+        if config.debug_mode:
+            print_debug(func_name, status, response)
         return SQLReturn(status, response)
 
 
