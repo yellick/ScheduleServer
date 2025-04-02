@@ -5,7 +5,7 @@ import hashlib
 from datetime import datetime
 
 # modules
-import modules.dbConfigLockal as dbConfig
+import modules.dbConfig as dbConfig
 import modules.config as config
 
 # connect to db function
