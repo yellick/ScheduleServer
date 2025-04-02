@@ -8,6 +8,7 @@ CORS(app)
 
 app.route('/check_connection', methods=['GET', 'POST'])(check_connection)
 app.route('/get_user_data', methods=['POST', 'GET'])(get_user_data)
+app.route('/auth', methods=['POST', 'GET'])(auth)
 app.route('/get_schedule', methods=['POST', 'GET'])(get_schedule)
 app.route('/start_session', methods=['POST', 'GET'])(start_session)
 app.route('/check_session', methods=['POST', 'GET'])(check_session)

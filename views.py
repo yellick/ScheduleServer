@@ -6,15 +6,14 @@ def check_connection():
     response = SQL.check_connection().to_dict()
     return jsonify(response)
 
-
-def get_user_data():
+def auth():
     try:
         response = SQL.auth("22201003", "xDW8Nzmf")
         return jsonify(response)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def get_user_data1():
+def get_user_data():
     data = request.get_json()
     user_id = data.get('user_id')
 

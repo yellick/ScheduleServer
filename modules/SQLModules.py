@@ -9,7 +9,6 @@ import modules.dbConfig as dbConfig
 import modules.config as config
 from modules.parcer import Parser
 
-
 parser = Parser()
 
 # connect to db function
