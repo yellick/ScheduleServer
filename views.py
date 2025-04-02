@@ -9,8 +9,12 @@ def check_connection():
 
 
 def get_user_data():
-    response = Parser.get_user_data("22201003", "xDW8Nzmf")
-    return jsonify(response)
+    parser = Parser()
+    try:
+        response = parser.get_user_data("22201003", "xDW8Nzmf")
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def get_user_data1():
     data = request.get_json()
