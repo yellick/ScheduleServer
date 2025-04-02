@@ -46,7 +46,7 @@ def hash_string(input_string):
 # method with execute all requests
 class SQL:
     @staticmethod
-    def chec_connection():
+    def check_connection():
         func_name = inspect.currentframe().f_code.co_name
 
         status = SQLStat.err_unknown()
