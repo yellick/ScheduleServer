@@ -3,10 +3,7 @@ from modules.SQLModules import SQL
 
 
 def check_connection():
-    response = {
-        'server': True,
-        'database': False
-    }
+    response = SQL.check_connection().to_dict()
     return jsonify(response)
 
 def get_user_data():
