@@ -40,7 +40,7 @@ class Parser:
             print(f"Ошибка при авторизации: {e}")
             return False
 
-
+    @staticmethod
     def get_user_data(self, username, password):
         if not self.moodle_login(username, password):
             return {"error": "Неверный логин или пароль."}
