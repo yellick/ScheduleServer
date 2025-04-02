@@ -1,6 +1,5 @@
 from flask import request, jsonify
 from modules.SQLModules import SQL
-from modules.parcer import Parser
 
 
 def check_connection():
@@ -9,9 +8,8 @@ def check_connection():
 
 
 def get_user_data():
-    parser = Parser()
     try:
-        response = parser.get_user_data("22201003", "xDW8Nzmf")
+        response = SQL.auth("22201003", "xDW8Nzmf")
         return jsonify(response)
     except Exception as e:
         return jsonify({"error": str(e)}), 500

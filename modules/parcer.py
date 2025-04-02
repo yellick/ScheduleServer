@@ -1,20 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
-import json
 
 class Parser:
     def __init__(self):
         self.session = requests.Session()
         self.base_url = "https://moodle.preco.ru"
-        
         self.urls = {
             'login': f"{self.base_url}/login/index.php",
-            'schedule': f"{self.base_url}/blocks/lkstudents/sheduleonline.php",
-            'themes': f"{self.base_url}/blocks/lkstudents/themework.php",
-            'profile': f"{self.base_url}/user/profile.php",
-            'skipping': f"{self.base_url}/blocks/lkstudents/missedclass.php"
+            'profile': f"{self.base_url}/user/profile.php"
         }
-
 
     def moodle_login(self, username, password):
         try:
@@ -34,16 +28,17 @@ class Parser:
             }
             response = self.session.post(self.urls['login'], data=login_data)
 
-            return "login/index.php" not in response.url
+            if "login/index.php" in response.url:
+                return (1, "Invalid login or password")
+            return (0, "success")
 
         except Exception as e:
-            print(f"Ошибка при авторизации: {e}")
-            return False
+            return (1, f"Login error: {str(e)}")
 
-    
     def get_user_data(self, username, password):
-        if not self.moodle_login(username, password):
-            return {"error": "Неверный логин или пароль."}
+        login_result = self.moodle_login(username, password)
+        if login_result[0] != 0:
+            return login_result
 
         try:
             response = self.session.get(self.urls['profile'])
@@ -51,16 +46,16 @@ class Parser:
 
             full_name_tag = soup.find('h1', {'class': 'h2'})
             if not full_name_tag:
-                return {"error": "Не удалось найти ФИО пользователя."}
+                return (1, "Failed to find user's full name")
             
             email_tag = soup.find('dt', string="Адрес электронной почты")
             if not email_tag:
-                return {"error": "Не удалось найти адрес электронной почты."}
+                return (1, "Failed to find email address")
 
-            return {
+            return (0, {
                 "full_name": full_name_tag.text.strip(),
                 "email": email_tag.find_next('dd').find('a').text.strip()
-            }
+            })
 
         except Exception as e:
-            return {"error": str(e)}
+            return (1, f"Data retrieval error: {str(e)}")

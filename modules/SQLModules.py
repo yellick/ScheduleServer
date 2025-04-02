@@ -7,6 +7,10 @@ from datetime import datetime
 # modules
 import modules.dbConfig as dbConfig
 import modules.config as config
+from modules.parcer import Parser
+
+
+parser = Parser()
 
 # connect to db function
 def connect_to_db():
@@ -45,10 +49,9 @@ def print_debug(fn, status, response):
 # func for hash
 def hash_string(input_string):
     sha256 = hashlib.sha256()
-    sha256.update(input_string.encode('utf-8'))
-    hashed_string = sha256.hexdigest()
-
-    return hashed_string
+    salted_string = input_string + config.salt
+    sha256.update(salted_string.encode('utf-8'))
+    return sha256.hexdigest()
 
 # method with execute all requests
 class SQL:
@@ -83,6 +86,94 @@ class SQL:
             print_debug(func_name, status, response)
         return SQLReturn(status, response)
 
+
+    @staticmethod
+    def auth(login, password):
+        func_name = inspect.currentframe().f_code.co_name
+        status = SQLStat.err_unknown()
+        response = {'error': None, 'user': None}
+
+        try:
+            connection = connect_to_db()
+            if connection is None:
+                status = SQLStat.err_db_con()
+                response['error'] = 'Database connection failed'
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+                return SQLReturn(status, response)
+
+            try:
+                with connection.cursor() as cursor:
+                    sql_check = """
+                        SELECT * FROM `users` 
+                        WHERE `login` = %s AND `password` = %s
+                    """
+                    cursor.execute(sql_check, (login, password))
+                    row = cursor.fetchone()
+
+                    if row:
+                        status = SQLStat.succ()
+                        response['user'] = dict(row)  # Конвертируем в dict
+                    else:
+                        # Пользователь не найден - пробуем получить через парсер
+                        code, parser_data = parser.get_user_data(login, password)
+                        
+                        if code == 0:  # Успешный парсинг
+                            # Добавляем пользователя
+                            sql_insert = """
+                                INSERT INTO `users` 
+                                    (`login`, `password`, `name`, `email`) 
+                                VALUES 
+                                    (%s, %s, %s, %s)
+                            """
+                            cursor.execute(sql_insert, (
+                                login,
+                                password,
+                                parser_data["full_name"],
+                                parser_data["email"]
+                            ))
+                            connection.commit()
+
+                            # Повторно ищем добавленного пользователя
+                            cursor.execute(sql_check, (login, password))
+                            row = cursor.fetchone()
+                            
+                            if row:
+                                status = SQLStat.succ()
+                                response['user'] = dict(row)
+                            else:
+                                status = SQLStat.err_not_found()
+                                response['error'] = 'User not found after registration'
+                        else:
+                            status = SQLStat(1, 'Authentication failed')
+                            response['error'] = parser_data
+
+            except pymysql.MySQLError as e:
+                status = SQLStat.err_request()
+                response['error'] = str(e)
+                if connection:
+                    connection.rollback()
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+
+            finally:
+                if connection:
+                    connection.close()
+
+        except Exception as e:
+            status = SQLStat.err_db_con()
+            response['error'] = str(e)
+            if config.debug_mode:
+                print_debug(func_name, status, response)
+
+        # Очищаем error при успехе
+        if status[0] == 0:
+            response.pop('error', None)
+        
+        if config.debug_mode and status[0] != 0:
+            print_debug(func_name, status, response)
+
+        return SQLReturn(status, response)
 
     @staticmethod
     def get_user_data_by_id(user_id):
@@ -386,7 +477,7 @@ class SQLStat:
         return [1, 'Failed to connect to the database']
 
     def err_request():
-        return [2, 'The request could not be completed']
+        return [1, 'The request could not be completed']
     
     def err_not_found():
-        return [3, 'Data not found']
+        return [1, 'Data not found']
