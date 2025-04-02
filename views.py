@@ -1,12 +1,18 @@
 from flask import request, jsonify
 from modules.SQLModules import SQL
+from modules.parcer import Parser
 
 
 def check_connection():
     response = SQL.check_connection().to_dict()
     return jsonify(response)
 
+
 def get_user_data():
+    response = Parser.get_user_data("22201003", "xDW8Nzmf")
+    return jsonify(response)
+
+def get_user_data1():
     data = request.get_json()
     user_id = data.get('user_id')
 

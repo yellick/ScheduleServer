@@ -2,3 +2,5 @@ flask
 flask-cors
 pymysql
 cryptography
+requests
+beautifulsoup4
