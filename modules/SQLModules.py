@@ -10,16 +10,23 @@ import modules.config as config
 
 # connect to db function
 def connect_to_db():
-    connection = pymysql.connect(
-        host = dbConfig.host,
-        port = dbConfig.port,
-        user = dbConfig.login,
-        password = dbConfig.password,
-        database = dbConfig.db,
-        cursorclass = pymysql.cursors.DictCursor
-    )
-
-    return connection
+    try:
+        connection = pymysql.connect(
+            host=dbConfig.host,
+            port=dbConfig.port,
+            user=dbConfig.login,
+            password=dbConfig.password,
+            database=dbConfig.db,
+            cursorclass=pymysql.cursors.DictCursor,
+            ssl={'ca': None},  # Отключаем SSL для docker-сети
+            connect_timeout=10,
+            read_timeout=10,
+            write_timeout=10
+        )
+        return connection
+    except pymysql.Error as e:
+        print(f"Database connection error: {e}")
+        raise
 
 # convert date from SQL to dd-mm-yyyy
 def format_date(date_obj):
