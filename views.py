@@ -9,9 +9,13 @@ def check_connection():
 def auth():
     try:
         response = SQL.auth("22201003", "xDW8Nzmf")
-        return jsonify(response)
+        return jsonify(response.to_dict())
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "code": -1,
+            "status": "Internal server error",
+            "response": {"error": str(e)}
+        }), 500
 
 def get_user_data():
     data = request.get_json()
