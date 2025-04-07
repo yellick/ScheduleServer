@@ -6,8 +6,6 @@ import os
 login = os.environ.get('TEST_USER')
 password = os.environ.get('TEST_PASSWORD')
 ###################################
-print(login)
-print(password)
 
 
 def check_connection():
@@ -15,6 +13,9 @@ def check_connection():
     return jsonify(response)
 
 def auth():
+    print(login)
+    print(password)
+    
     try:
         response = SQL.auth(login, password)
         return jsonify(response.to_dict())
