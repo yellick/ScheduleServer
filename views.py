@@ -13,9 +13,6 @@ def check_connection():
     return jsonify(response)
 
 def auth():
-    print(login)
-    print(password)
-    
     try:
         response = SQL.auth(login, password)
         return jsonify(response.to_dict())
