@@ -5,18 +5,18 @@ from views import *
 app = Flask(__name__)
 CORS(app)
 
-# Ваши существующие маршруты
+
 app.route('/check_connection', methods=['GET', 'POST'])(check_connection)
 app.route('/get_user_data', methods=['POST', 'GET'])(get_user_data)
 app.route('/auth', methods=['POST', 'GET'])(auth)
+app.route('/get_themes', methods=['POST', 'GET'])(get_themes)
 app.route('/get_schedule', methods=['POST', 'GET'])(get_schedule)
 app.route('/start_session', methods=['POST', 'GET'])(start_session)
 app.route('/check_session', methods=['POST', 'GET'])(check_session)
 
-# Новый маршрут для индексной страницы
+
 @app.route('/', methods=['GET'])
 def index():
-    # Собираем информацию о маршрутах
     routes_info = []
     for rule in app.url_map.iter_rules():
         if rule.endpoint != 'static' and rule.endpoint != 'index':
@@ -27,10 +27,8 @@ def index():
             }
             routes_info.append(route)
     
-    # Сортируем маршруты по пути
     routes_info.sort(key=lambda x: x['path'])
     
-    # Генерируем HTML
     html = """
     <!DOCTYPE html>
     <html>

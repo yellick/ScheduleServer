@@ -23,6 +23,17 @@ def auth():
             "response": {"error": str(e)}
         }), 500
 
+def get_themes():
+    try:
+        response = SQL.auth(login, password)
+        return jsonify(response.to_dict())
+    except Exception as e:
+        return jsonify({
+            "code": -1,
+            "status": "Internal server error",
+            "response": {"error": str(e)}
+        }), 500
+
 def get_user_data():
     data = request.get_json()
     user_id = data.get('user_id')
