@@ -1,5 +1,13 @@
 from flask import request, jsonify
 from modules.SQLModules import SQL
+import os
+
+###################################
+login = os.environ.get('TEST_USER')
+password = os.environ.get('TEST_PASSWORD')
+###################################
+print(login)
+print(password)
 
 
 def check_connection():
@@ -8,7 +16,7 @@ def check_connection():
 
 def auth():
     try:
-        response = SQL.auth("22201003", "xDW8Nzmf")
+        response = SQL.auth(login, password)
         return jsonify(response.to_dict())
     except Exception as e:
         return jsonify({
