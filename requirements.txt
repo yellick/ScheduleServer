@@ -4,3 +4,4 @@ pymysql
 cryptography
 requests
 beautifulsoup4
+python-dotenv
