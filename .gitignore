@@ -2,3 +2,4 @@ __pycache__/
 *.sql
 dbConfigLockal.py
 app.py
+key.py
