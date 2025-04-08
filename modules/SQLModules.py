@@ -3,12 +3,15 @@ import pymysql
 import inspect
 import hashlib
 from datetime import datetime
+import os
 
 # modules
 import modules.dbConfig as dbConfig
 import modules.config as config
 from modules.parcer import Parser
+from modules.crypto import Crypto
 
+crypto = Crypto(os.environ.get('ENCRYPTION_KEY'))
 parser = Parser()
 
 # connect to db function
@@ -90,7 +93,7 @@ class SQL:
     def auth(login, password):
         func_name = inspect.currentframe().f_code.co_name
         status = SQLStat.err_unknown()
-        response = {'error': None, 'user': None}
+        response = {'error': None, 'user': None, 'key': os.environ.get('ENCRYPTION_KEY'), 'pass': crypto.encrypt(password)}
 
         try:
             connection = connect_to_db()
@@ -112,13 +115,11 @@ class SQL:
 
                     if row:
                         status = SQLStat.succ()
-                        response['user'] = dict(row)  # Конвертируем в dict
+                        response['user'] = dict(row)
                     else:
-                        # Пользователь не найден - пробуем получить через парсер
                         code, parser_data = parser.get_user_data(login, password)
                         
-                        if code == 0:  # Успешный парсинг
-                            # Добавляем пользователя
+                        if code == 0:
                             sql_insert = """
                                 INSERT INTO `users` 
                                     (`login`, `password`, `name`, `email`) 
@@ -133,7 +134,6 @@ class SQL:
                             ))
                             connection.commit()
 
-                            # Повторно ищем добавленного пользователя
                             cursor.execute(sql_check, (login, password))
                             row = cursor.fetchone()
                             
@@ -173,6 +173,10 @@ class SQL:
             print_debug(func_name, status, response)
 
         return SQLReturn(status, response)
+    
+    @staticmethod
+    def get_themes(login, password):
+        pass
 
     @staticmethod
     def get_user_data_by_id(user_id):
