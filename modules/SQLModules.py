@@ -93,7 +93,9 @@ class SQL:
     def auth(login, password):
         func_name = inspect.currentframe().f_code.co_name
         status = SQLStat.err_unknown()
-        response = {'error': None, 'user': None, 'key': os.environ.get('ENCRYPTION_KEY'), 'pass': crypto.encrypt(password)}
+        response = {'error': None, 'user': None}
+
+        crypto_pass = crypto.encrypt(password)
 
         try:
             connection = connect_to_db()
@@ -110,7 +112,7 @@ class SQL:
                         SELECT * FROM `users` 
                         WHERE `login` = %s AND `password` = %s
                     """
-                    cursor.execute(sql_check, (login, password))
+                    cursor.execute(sql_check, (login, crypto_pass))
                     row = cursor.fetchone()
 
                     if row:
@@ -128,13 +130,13 @@ class SQL:
                             """
                             cursor.execute(sql_insert, (
                                 login,
-                                password,
+                                crypto_pass,
                                 parser_data["full_name"],
                                 parser_data["email"]
                             ))
                             connection.commit()
 
-                            cursor.execute(sql_check, (login, password))
+                            cursor.execute(sql_check, (login, crypto_pass))
                             row = cursor.fetchone()
                             
                             if row:
