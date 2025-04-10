@@ -110,14 +110,14 @@ class SQL:
                 with connection.cursor() as cursor:
                     sql_check = """
                         SELECT * FROM `users` 
-                        WHERE `login` = %s AND `password` = %s
+                        WHERE `login` = %s
                     """
-                    cursor.execute(sql_check, (login, crypto_pass))
+                    cursor.execute(sql_check, login)
                     row = cursor.fetchone()
 
-                    if row:
+                    if row and crypto.decrypt(row['password']) == password:
                         status = SQLStat.succ()
-                        response['user'] = dict(row)
+                        response['user'] = dict(row)                       
                     else:
                         code, parser_data = parser.get_user_data(login, password)
                         
@@ -136,10 +136,10 @@ class SQL:
                             ))
                             connection.commit()
 
-                            cursor.execute(sql_check, (login, crypto_pass))
+                            cursor.execute(sql_check, login)
                             row = cursor.fetchone()
                             
-                            if row:
+                            if row and crypto.decrypt(row['password']) == password:
                                 status = SQLStat.succ()
                                 response['user'] = dict(row)
                             else:
@@ -175,7 +175,8 @@ class SQL:
             print_debug(func_name, status, response)
 
         return SQLReturn(status, response)
-    
+
+
     @staticmethod
     def get_themes(login, password):
         pass
