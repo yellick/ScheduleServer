@@ -93,7 +93,7 @@ class SQL:
     def auth(login, password):
         func_name = inspect.currentframe().f_code.co_name
         status = SQLStat.err_unknown()
-        response = {'error': None, 'user': None}
+        response = {'error': None, 'user': None, 'dataType': None}
 
         crypto_pass = crypto.encrypt(password)
 
@@ -117,7 +117,8 @@ class SQL:
 
                     if row and crypto.decrypt(row['password']) == password:
                         status = SQLStat.succ()
-                        response['user'] = dict(row)                       
+                        response['user'] = dict(row) 
+                        response['dataType'] = 'db'                      
                     else:
                         code, parser_data = parser.get_user_data(login, password)
                         
@@ -142,6 +143,7 @@ class SQL:
                             if row and crypto.decrypt(row['password']) == password:
                                 status = SQLStat.succ()
                                 response['user'] = dict(row)
+                                response['dataType'] = 'parced'  
                             else:
                                 status = SQLStat.err_not_found()
                                 response['error'] = 'User not found after registration'
