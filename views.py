@@ -3,8 +3,10 @@ from modules.SQLModules import SQL
 import os
 
 ###################################
+### TEST DATA ###
 login = os.environ.get('TEST_USER')
 password = os.environ.get('TEST_PASSWORD')
+user_id = 13
 ###################################
 
 
@@ -25,7 +27,7 @@ def auth():
 
 def get_themes():
     try:
-        response = SQL.auth(login, password)
+        response = SQL.get_themes(user_id)
         return jsonify(response.to_dict())
     except Exception as e:
         return jsonify({

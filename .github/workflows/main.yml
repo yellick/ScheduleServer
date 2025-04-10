@@ -10,12 +10,16 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Server
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Cache Docker
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
 
       - name: Set up SSH
         run: |
@@ -24,11 +28,16 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ vars.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Copy files via rsync
+      - name: Sync files
         run: |
-          rsync -av --delete --exclude=".env" --exclude=".git/" --exclude=".github/" ./ ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:~/stacks/schApi/app
+          rsync -av --delete \
+            --exclude=".env" \
+            --exclude=".git/" \
+            --exclude=".github/" \
+            --exclude="node_modules/" \
+            ./ ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:~/stacks/schApi/app
 
-      - name: Build and deploy Docker containers
+      - name: Deploy containers
         uses: appleboy/ssh-action@master
         with:
           host: ${{ vars.SERVER_HOST }}
@@ -36,4 +45,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/stacks/schApi/app
-            docker compose up --build -d
+            docker compose build --pull
+            docker compose up -d
+            docker compose ps

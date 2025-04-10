@@ -7,7 +7,8 @@ class Parser:
         self.base_url = "https://moodle.preco.ru"
         self.urls = {
             'login': f"{self.base_url}/login/index.php",
-            'profile': f"{self.base_url}/user/profile.php"
+            'profile': f"{self.base_url}/user/profile.php",
+            'themes': f"{self.base_url}/blocks/lkstudents/themework.php"
         }
 
     def moodle_login(self, username, password):
@@ -59,3 +60,31 @@ class Parser:
 
         except Exception as e:
             return (1, f"Data retrieval error: {str(e)}")
+        
+    def get_themes(self, username, password):
+        """Получение списка тем/работ"""
+        code, msg = self.moodle_login(username, password)
+        if code != 0:
+            return (code, msg)
+
+        try:
+            response = self.session.get(self.urls['themes'])
+            soup = BeautifulSoup(response.text, 'html.parser')
+            table = soup.find('table')
+            
+            if not table:
+                return (1, "Themes table not found")
+
+            themes = []
+            for row in table.find_all('tr')[1:]:
+                cells = row.find_all('td')
+                if len(cells) >= 3:
+                    themes.append({
+                        'type': cells[0].text.strip(),
+                        'theme': cells[1].text.strip(),
+                        'curator': cells[2].text.strip()
+                    })
+
+            return (0, themes) if themes else (1, "No themes found")
+        except Exception as e:
+            return (1, f"Themes retrieval error: {str(e)}")

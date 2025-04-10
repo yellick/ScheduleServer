@@ -169,7 +169,7 @@ class SQL:
             if config.debug_mode:
                 print_debug(func_name, status, response)
 
-        # Очищаем error при успехе
+        
         if status[0] == 0:
             response.pop('error', None)
         
@@ -180,8 +180,112 @@ class SQL:
 
 
     @staticmethod
-    def get_themes(login, password):
-        pass
+    def get_themes(u_id):
+        func_name = inspect.currentframe().f_code.co_name
+        status = SQLStat.err_unknown()
+        response = {'error': None, 'themes': None, 'dataType': None}
+
+        try:
+            connection = connect_to_db()
+            if connection is None:
+                status = SQLStat.err_db_con()
+                response['error'] = 'Database connection failed'
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+                return SQLReturn(status, response)
+
+            try:
+                with connection.cursor() as cursor:
+                    # Получение данных пользователя
+                    sql_get_user = "SELECT * FROM `users` WHERE id = %s"
+                    cursor.execute(sql_get_user, u_id)
+                    row = cursor.fetchone()
+
+                    if row:
+                        # Парсинг, чтобы сравнить данные в бд и на сайте
+                        code, parser_data = parser.get_themes(row['login'], crypto.decrypt(row['password']))
+
+                        # Выход, если ошибка парсера
+                        if code != 0:
+                            status = SQLStat.err_auth_failed()
+                            response['error'] = parser_data    
+                            return SQLReturn(status, response)
+
+
+                        sql_themes = "SELECT * FROM `themes` WHERE u_id = %s"
+                        cursor.execute(sql_themes, u_id)
+                        data = cursor.fetchall()
+                            
+                        if data:
+                            themes = [dict(row) for row in data]
+
+
+                        # Создание массива отсутствующих записей в бд
+                        existing_themes = {theme['theme'] for theme in themes}
+                        new_themes = [
+                            theme for theme in parser_data
+                            if theme['theme'] not in existing_themes
+                        ]
+
+
+                        if new_themes:
+                            sql_insert = """
+                                INSERT INTO `themes` 
+                                    (`u_id`, `type`, `theme`, `curator`) 
+                                VALUES (%s, %s, %s, %s)
+                            """
+
+                            for theme in new_themes:
+                                cursor.execute(sql_insert, (
+                                    u_id,
+                                    theme['type'],
+                                    theme['theme'],
+                                    theme['curator']
+                                ))
+                            connection.commit()
+                        
+                            # Получение и возврат новых данных
+                            cursor.execute("SELECT * FROM themes WHERE u_id = %s", (u_id,))
+                            response['themes'] = [dict(row) for row in cursor.fetchall()]
+                            response['dataType'] = 'parced'
+                            status = SQLStat.succ()
+
+                        else:
+                            response['themes'] = themes
+                            response['dataType'] = 'db'
+                            status = SQLStat.succ()
+
+                    else:
+                        status = SQLStat.err_not_found()
+                        response['error'] = 'User not found by id'
+                        return SQLReturn(status, response)
+
+
+            except pymysql.MySQLError as e:
+                status = SQLStat.err_request()
+                response['error'] = str(e)
+                if connection:
+                    connection.rollback()
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+
+            finally:
+                if connection:
+                    connection.close()
+
+        except Exception as e:
+            status = SQLStat.err_db_con()
+            response['error'] = str(e)
+            if config.debug_mode:
+                print_debug(func_name, status, response)
+
+        if status[0] == 0:
+            response.pop('error', None)
+        
+        if config.debug_mode and status[0] != 0:
+            print_debug(func_name, status, response)
+
+        return SQLReturn(status, response)
 
     @staticmethod
     def get_user_data_by_id(user_id):
@@ -470,7 +574,6 @@ class SQLReturn:
         }
 
 
-# status constructor
 class SQLStat:
 
     # SUCCESS
@@ -489,3 +592,6 @@ class SQLStat:
     
     def err_not_found():
         return [1, 'Data not found']
+    
+    def err_auth_failed():
+        return [1, 'Authentication failed']
