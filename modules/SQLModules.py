@@ -218,6 +218,8 @@ class SQL:
                             
                         if data:
                             themes = [dict(row) for row in data]
+                        else:
+                            response['db_check'] = 'no data in db'
 
 
                         # Создание массива отсутствующих записей в бд
