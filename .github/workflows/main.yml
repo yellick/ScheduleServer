@@ -34,6 +34,8 @@ jobs:
           host: ${{ vars.SERVER_HOST }}
           username: ${{ vars.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 1200
           script: |
             cd ~/stacks/schApi/app
-            docker compose up --build -d
+            docker compose build --no-cache=false
+            docker compose up -d
