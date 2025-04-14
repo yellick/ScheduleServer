@@ -6,7 +6,7 @@ import os
 ### TEST DATA ###
 #login = os.environ.get('TEST_USER')
 #password = os.environ.get('TEST_PASSWORD')
-user_id = 14
+#user_id = 14
 ###################################
 
 
@@ -15,11 +15,11 @@ def check_connection():
     return jsonify(response)
 
 def auth():
-    data = request.get_json()
-    login = data.get('login')
-    password = data.get('password')
-
     try:
+        data = request.get_json()
+        login = data.get('login')
+        password = data.get('password')
+
         response = SQL.auth(login, password)
         return jsonify(response.to_dict())
     except Exception as e:
@@ -29,8 +29,11 @@ def auth():
             "response": {"error": str(e)}
         }), 500
 
-def get_themes():
+def get_themes():    
     try:
+        data = request.get_json()
+        user_id = data.get('u_id')
+        
         response = SQL.get_themes(user_id)
         return jsonify(response.to_dict())
     except Exception as e:
@@ -42,6 +45,9 @@ def get_themes():
     
 def get_skipping():
     try:
+        data = request.get_json()
+        user_id = data.get('u_id')
+        
         response = SQL.get_skipping(user_id)
         return jsonify(response.to_dict())
     except Exception as e:
