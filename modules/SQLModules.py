@@ -203,7 +203,14 @@ class SQL:
 
                     if row:
                         # Парсинг, чтобы сравнить данные в бд и на сайте
-                        code, parser_data = parser.get_themes(row['login'], crypto.decrypt(row['password']))
+                        try:
+                            decrypted_password = crypto.decrypt(row['password'])
+                        except Exception as decrypt_error:
+                            status = SQLStat.err_auth_failed()
+                            response['error'] = f"Decryption failed: {decrypt_error}"
+                            return SQLReturn(status, response)
+                        
+                        code, parser_data = parser.get_themes(row['login'], decrypted_password)
 
                         # Выход, если ошибка парсера
                         if code != 0:
@@ -216,14 +223,14 @@ class SQL:
                         cursor.execute(sql_themes, u_id)
                         data = cursor.fetchall()
                             
+                        themes = []
                         if data:
                             themes = [dict(row) for row in data]
-                        else:
-                            response['db_check'] = 'no data in db'
 
 
                         # Создание массива отсутствующих записей в бд
                         existing_themes = {theme['theme'] for theme in themes}
+
                         new_themes = [
                             theme for theme in parser_data
                             if theme['theme'] not in existing_themes
@@ -244,11 +251,11 @@ class SQL:
                                     theme['theme'],
                                     theme['curator']
                                 ))
+
                             connection.commit()
-                        
-                            # Получение и возврат новых данных
                             cursor.execute("SELECT * FROM themes WHERE u_id = %s", (u_id,))
                             response['themes'] = [dict(row) for row in cursor.fetchall()]
+
                             response['dataType'] = 'parced'
                             status = SQLStat.succ()
 
@@ -289,71 +296,12 @@ class SQL:
 
         return SQLReturn(status, response)
 
-    @staticmethod
-    def get_user_data_by_id(user_id):
-        func_name = inspect.currentframe().f_code.co_name
 
+    @staticmethod
+    def get_skipping(u_id):
+        func_name = inspect.currentframe().f_code.co_name
         status = SQLStat.err_unknown()
         response = []
-
-        try:
-            connection = connect_to_db()
-
-
-            if connection is None:
-                status = SQLStat.err_request()
-
-                # debug
-                if config.debug_mode:
-                    print_debug(func_name, status, response)
-
-                return SQLReturn(status, response)
-
-            try:
-                with connection.cursor() as cursor:
-                    sql = """
-                            SELECT users.id, users.email, login, password, users.name, group_id, groups.name 
-                            FROM `users` 
-                            INNER JOIN groups ON users.group_id = groups.id 
-                            WHERE users.id = %s
-                          """
-                    
-                    cursor.execute(sql, user_id)
-                    row = cursor.fetchall()
-
-                    if row:
-                        response = row[0]
-                        status = SQLStat.succ()
-                    else:
-                        status = SQLStat.err_not_found()
-                    
-                    # debug
-                    if config.debug_mode:
-                        print_debug(func_name, status, response)
-
-
-            except pymysql.MySQLError as e:
-                status = SQLStat.err_request()
-                response = e
-
-                # debug
-                if config.debug_mode:  
-                    print_debug(func_name, status, response)
-
-            finally:
-                connection.close()
-
-        except Exception as e:
-            status = SQLStat.err_db_con()
-            response = e
-
-            # debug
-            if config.debug_mode:
-                print_debug(func_name, status, response)
-
-        # debug
-        if status == SQLStat.err_unknown() and config.debug_mode:
-            print_debug(func_name, status, response)
 
         return SQLReturn(status, response)
 

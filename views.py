@@ -35,13 +35,17 @@ def get_themes():
             "status": "Internal server error",
             "response": {"error": str(e)}
         }), 500
-
-def get_user_data():
-    data = request.get_json()
-    user_id = data.get('user_id')
-
-    response = SQL.get_user_data_by_id(user_id).to_dict()
-    return jsonify(response)
+    
+def get_skipping():
+    try:
+        response = SQL.get_skipping(user_id)
+        return jsonify(response.to_dict())
+    except Exception as e:
+        return jsonify({
+            "code": -1,
+            "status": "Internal server error",
+            "response": {"error": str(e)}
+        }), 500
 
 def get_schedule():
     data = request.get_json()
