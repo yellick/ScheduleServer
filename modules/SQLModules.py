@@ -82,7 +82,7 @@ class SQL:
 
         except Exception as e:
             status = SQLStat.err_db_con()
-            response['error'] = str(e)  # Важно: сохраняем текст ошибки, а не объект
+            response['error'] = str(e)
 
         if config.debug_mode:
             print_debug(func_name, status, response)
@@ -196,13 +196,11 @@ class SQL:
 
             try:
                 with connection.cursor() as cursor:
-                    # Получение данных пользователя
                     sql_get_user = "SELECT * FROM `users` WHERE id = %s"
                     cursor.execute(sql_get_user, u_id)
                     row = cursor.fetchone()
 
                     if row:
-                        # Парсинг, чтобы сравнить данные в бд и на сайте
                         try:
                             decrypted_password = crypto.decrypt(row['password'])
                         except Exception as decrypt_error:
@@ -212,10 +210,10 @@ class SQL:
                         
                         code, parser_data = parser.get_themes(row['login'], decrypted_password)
 
-                        # Выход, если ошибка парсера
                         if code != 0:
                             status = SQLStat.err_auth_failed()
-                            response['error'] = parser_data    
+                            response['error'] = parser_data
+                            response['userdata'] = [row['login'], decrypted_password]    
                             return SQLReturn(status, response)
 
 
@@ -228,7 +226,6 @@ class SQL:
                             themes = [dict(row) for row in data]
 
 
-                        # Создание массива отсутствующих записей в бд
                         existing_themes = {theme['theme'] for theme in themes}
 
                         new_themes = [
