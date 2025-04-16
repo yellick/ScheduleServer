@@ -301,7 +301,7 @@ class SQL:
     def get_skipping(u_id):
         func_name = inspect.currentframe().f_code.co_name
         status = SQLStat.err_unknown()
-        response = []
+        response = [u_id]
 
         return SQLReturn(status, response)
 
