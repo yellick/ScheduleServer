@@ -204,7 +204,7 @@ class SQL:
                         try:
                             decrypted_password = crypto.decrypt(row['password'])
                         except Exception as decrypt_error:
-                            status = SQLStat.err_auth_failed()
+                            status = SQLStat.err_decrypt_error()
                             response['error'] = f"Decryption failed: {decrypt_error}"
                             return SQLReturn(status, response)
                         
@@ -212,8 +212,7 @@ class SQL:
 
                         if code != 0:
                             status = SQLStat.err_auth_failed()
-                            response['error'] = parser_data
-                            response['userdata'] = [row['login'], decrypted_password]    
+                            response['error'] = parser_data  
                             return SQLReturn(status, response)
 
 
@@ -324,8 +323,10 @@ class SQL:
 
                     try:
                         decrypted_password = crypto.decrypt(user_data['password'])
+                        
                     except Exception as decrypt_error:
-                        status = SQLStat.err_auth_failed()
+                        status = SQLStat.err_decrypt_error()
+                        response['userdata'] = [user_data['login'], decrypted_password]  
                         response['error'] = f"Decryption failed: {decrypt_error}"
                         return SQLReturn(status, response)
 
@@ -668,3 +669,6 @@ class SQLStat:
     
     def err_auth_failed():
         return [1, 'Authentication failed']
+    
+    def err_decrypt_error():
+        return [1, 'Decryption failed']
