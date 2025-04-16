@@ -301,7 +301,133 @@ class SQL:
     def get_skipping(u_id):
         func_name = inspect.currentframe().f_code.co_name
         status = SQLStat.err_unknown()
-        response = [u_id]
+        response = {'error': None, 'skipping': None, 'dataType': None}
+
+        try:
+            connection = connect_to_db()
+            if connection is None:
+                status = SQLStat.err_db_con()
+                response['error'] = 'Database connection failed'
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+                return SQLReturn(status, response)
+
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT login, password FROM `users` WHERE id = %s", 
+                        u_id
+                    )
+                    user_data = cursor.fetchone()
+
+                    if not user_data:
+                        status = SQLStat.err_not_found()
+                        response['error'] = 'User not found by id'
+                        return SQLReturn(status, response)
+
+                    try:
+                        decrypted_password = crypto.decrypt(user_data['password'])
+                    except Exception as decrypt_error:
+                        status = SQLStat.err_auth_failed()
+                        response['error'] = f"Decryption failed: {decrypt_error}"
+                        return SQLReturn(status, response)
+
+                    code, parser_data = parser.get_skipping(user_data['login'], decrypted_password)
+                    if code != 0:
+                        status = SQLStat.err_auth_failed()
+                        response['error'] = parser_data    
+                        return SQLReturn(status, response)
+
+                    cursor.execute("""
+                        SELECT year, month, day, hours 
+                        FROM `skippings` 
+                        WHERE u_id = %s
+                    """, u_id)
+                    db_records = [dict(row) for row in cursor.fetchall()]
+                    existing_records = {(r['year'], r['month'], r['day']): r['hours'] for r in db_records}
+
+                    month_map = {
+                        'Январь': 1, 'Февраль': 2, 'Март': 3, 'Апрель': 4,
+                        'Май': 5, 'Июнь': 6, 'Июль': 7, 'Август': 8,
+                        'Сентябрь': 9, 'Октябрь': 10, 'Ноябрь': 11, 'Декабрь': 12
+                    }
+
+                    updates = []
+                    new_records = []
+                    data_changed = False
+
+                    for year_data in parser_data['skipping']:
+                        year = int(year_data['year'])
+                        for month_data in year_data['skippings']:
+                            month = month_map[month_data['month']]
+                            for day_data in month_data['skipping_days']:
+                                day = day_data['day']
+                                hours = day_data['hours']
+                                key = (year, month, day)
+                                
+                                if key in existing_records:
+                                    if existing_records[key] != hours:
+                                        updates.append((hours, u_id, year, month, day))
+                                        data_changed = True
+                                else:
+                                    new_records.append((u_id, year, month, day, hours))
+                                    data_changed = True
+
+                    if data_changed:
+                        if updates:
+                            sql = """
+                                UPDATE `skippings` 
+                                SET hours = %s 
+                                WHERE u_id = %s AND year = %s AND month = %s AND day = %s
+                            """
+                            cursor.executemany(sql, updates)
+                        
+                        if new_records:
+                            sql = """
+                                INSERT INTO `skippings` 
+                                (u_id, year, month, day, hours) 
+                                VALUES (%s, %s, %s, %s, %s)
+                            """
+                            cursor.executemany(sql, new_records)
+                        
+                        cursor.execute("""
+                            SELECT year, month, day, hours 
+                            FROM `skippings` 
+                            WHERE u_id = %s
+                        """, u_id)
+
+                        response['skipping'] = [dict(row) for row in cursor.fetchall()]
+                        response['dataType'] = 'parced'
+                    else:
+                        response['skipping'] = db_records
+                        response['dataType'] = 'db'
+
+                    status = SQLStat.succ()
+                    connection.commit()
+
+            except pymysql.MySQLError as e:
+                status = SQLStat.err_request()
+                response['error'] = str(e)
+                if connection:
+                    connection.rollback()
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+
+            finally:
+                if connection:
+                    connection.close()
+
+        except Exception as e:
+            status = SQLStat.err_db_con()
+            response['error'] = str(e)
+            if config.debug_mode:
+                print_debug(func_name, status, response)
+
+        if status[0] == 0:
+            response.pop('error', None)
+        
+        if config.debug_mode and status[0] != 0:
+            print_debug(func_name, status, response)
 
         return SQLReturn(status, response)
 
