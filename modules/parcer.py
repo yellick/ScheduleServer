@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 
 class Parser:
     def __init__(self):
-        self.session = requests.Session()
         self.base_url = "https://moodle.preco.ru"
         self.urls = {
             'login': f"{self.base_url}/login/index.php",
@@ -11,9 +10,18 @@ class Parser:
             'themes': f"{self.base_url}/blocks/lkstudents/themework.php",
             'skipping': f"{self.base_url}/blocks/lkstudents/missedclass.php"
         }
+        self.reset_session()
+
+    def reset_session(self):
+        """Создает новую сессию для каждого запроса"""
+        self.session = requests.Session()
+        self.session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        })
 
     def moodle_login(self, username, password):
-        """Авторизация на Moodle"""
+        """Авторизация на Moodle с новой сессией"""
+        self.reset_session()
         try:
             response = self.session.get(self.urls['login'])
             soup = BeautifulSoup(response.text, 'html.parser')
