@@ -10,10 +10,7 @@ app.route('/check_connection', methods=['GET', 'POST'])(check_connection)
 app.route('/auth', methods=['POST', 'GET'])(auth)
 app.route('/themes', methods=['POST', 'GET'])(get_themes)
 app.route('/skipping', methods=['POST', 'GET'])(get_skipping)
-#app.route('/get_schedule', methods=['POST', 'GET'])(get_schedule)
-#app.route('/start_session', methods=['POST', 'GET'])(start_session)
-#app.route('/check_session', methods=['POST', 'GET'])(check_session)
-#app.route('/get_user_data', methods=['POST', 'GET'])(get_user_data)
+app.route('/groups', methods=['POST', 'GET'])(get_groups)
 
 
 @app.route('/', methods=['GET'])

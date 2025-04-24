@@ -430,6 +430,65 @@ class SQL:
         return SQLReturn(status, response)
 
 
+    @staticmethod 
+    def get_groups():
+        func_name = inspect.currentframe().f_code.co_name
+        status = SQLStat.err_unknown()
+        response = {'error': None, 'groups': None}
+
+        try:
+            connection = connect_to_db()
+            if connection is None:
+                status = SQLStat.err_db_con()
+                response['error'] = 'Database connection failed'
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+                return SQLReturn(status, response)
+
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute("SELECT `id`, `name` FROM `groups`")
+                    db_records = [dict(row) for row in cursor.fetchall()]
+                    response['skipping'] = db_records
+                    status = SQLStat.succ()
+                    
+
+            except pymysql.MySQLError as e:
+                status = SQLStat.err_request()
+                response['error'] = str(e)
+                if connection:
+                    connection.rollback()
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+
+            finally:
+                if connection:
+                    connection.close()
+
+        except Exception as e:
+            status = SQLStat.err_db_con()
+            response['error'] = str(e)
+            if config.debug_mode:
+                print_debug(func_name, status, response)
+
+        
+        if status[0] == 0:
+            response.pop('error', None)
+        
+        if config.debug_mode and status[0] != 0:
+            print_debug(func_name, status, response)
+
+        return SQLReturn(status, response)
+
+
+
+    
+    @staticmethod 
+    def update_groups(u_id):
+        pass
+
+
+
     @staticmethod
     def get_schedule_by_group(group_id,):
         func_name = inspect.currentframe().f_code.co_name

@@ -1,13 +1,5 @@
 from flask import request, jsonify
 from modules.SQLModules import SQL
-import os
-
-###################################
-### TEST DATA ###
-#login = os.environ.get('TEST_USER')
-#password = os.environ.get('TEST_PASSWORD')
-#user_id = 14
-###################################
 
 
 def check_connection():
@@ -56,6 +48,12 @@ def get_skipping():
             "status": "Internal server error",
             "response": {"error": str(e)}
         }), 500
+
+def get_groups():
+    response = SQL.get_groups().to_dict()
+    return jsonify(response)
+
+
 
 def get_schedule():
     data = request.get_json()
