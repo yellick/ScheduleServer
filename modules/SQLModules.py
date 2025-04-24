@@ -449,7 +449,7 @@ class SQL:
                 with connection.cursor() as cursor:
                     cursor.execute("SELECT `id`, `name` FROM `groups`")
                     db_records = [dict(row) for row in cursor.fetchall()]
-                    response['skipping'] = db_records
+                    response['groups'] = db_records
                     status = SQLStat.succ()
                     
 
