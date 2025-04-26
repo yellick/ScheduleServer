@@ -58,7 +58,7 @@ def update_groups():
         data = request.get_json()
         user_id = data.get('u_id')
         
-        response = SQL.update_groups(user_id).to_dict()
+        response = SQL.update_groups(user_id)
         return jsonify(response.to_dict())
     except Exception as e:
         return jsonify({
