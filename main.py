@@ -11,6 +11,7 @@ app.route('/auth', methods=['POST', 'GET'])(auth)
 app.route('/themes', methods=['POST', 'GET'])(get_themes)
 app.route('/skipping', methods=['POST', 'GET'])(get_skipping)
 app.route('/groups', methods=['POST', 'GET'])(get_groups)
+app.route('/update_groups', methods=['POST', 'GET'])(update_groups)
 
 
 @app.route('/', methods=['GET'])

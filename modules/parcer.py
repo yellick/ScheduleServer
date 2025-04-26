@@ -3,25 +3,18 @@ from bs4 import BeautifulSoup
 
 class Parser:
     def __init__(self):
+        self.session = requests.Session()
         self.base_url = "https://moodle.preco.ru"
         self.urls = {
             'login': f"{self.base_url}/login/index.php",
             'profile': f"{self.base_url}/user/profile.php",
             'themes': f"{self.base_url}/blocks/lkstudents/themework.php",
-            'skipping': f"{self.base_url}/blocks/lkstudents/missedclass.php"
+            'skipping': f"{self.base_url}/blocks/lkstudents/missedclass.php",
+            'schedule': f"{self.base_url}/blocks/lkstudents/sheduleonline.php"
         }
-        self.reset_session()
-
-    def reset_session(self):
-        """Создает новую сессию для каждого запроса"""
-        self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        })
 
     def moodle_login(self, username, password):
-        """Авторизация на Moodle с новой сессией"""
-        self.reset_session()
+        """Авторизация на Moodle"""
         try:
             response = self.session.get(self.urls['login'])
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -80,9 +73,9 @@ class Parser:
                 cells = row.find_all('td')
                 if len(cells) >= 3:
                     themes.append({
-                        'type': cells[0].text.strip(),
+                        'work_type': cells[0].text.strip(),
                         'theme': cells[1].text.strip(),
-                        'curator': cells[2].text.strip()
+                        'director': cells[2].text.strip()
                     })
 
             return (0, themes) if themes else (1, "No themes found")
@@ -166,3 +159,36 @@ class Parser:
 
         except Exception as e:
             return (1, f"Skipping data retrieval error: {str(e)}")
+
+    def get_groups(self, username, password):
+        """Получение списка групп из расписания"""
+        code, msg = self.moodle_login(username, password)
+        if code != 0:
+            return (code, msg)
+
+        try:
+            response = self.session.get(self.urls['schedule'])
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            select = soup.find('select', {
+                'class': 'custom-select',
+                'name': 'listgroups',
+                'id': 'id_listgroups'
+            })
+            
+            if not select:
+                return (1, "Groups select element not found")
+                
+            groups = []
+            for option in select.find_all('option'):
+                if 'value' in option.attrs and option.text:
+                    groups.append({
+                        'group': option.text.strip(),
+                        'value': option['value'].strip()
+                    })
+                    
+            return (0, groups) if groups else (1, "No groups found")
+        except Exception as e:
+            return (1, f"Schedule retrieval error: {str(e)}")
+        
+    

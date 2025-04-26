@@ -481,11 +481,95 @@ class SQL:
         return SQLReturn(status, response)
 
 
-
-    
-    @staticmethod 
+    @staticmethod
     def update_groups(u_id):
-        pass
+        func_name = inspect.currentframe().f_code.co_name
+        status = SQLStat.err_unknown()
+        response = {'error': None}
+
+        try:
+            connection = connect_to_db()
+            if connection is None:
+                status = SQLStat.err_db_con()
+                response['error'] = 'Database connection failed'
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+                return SQLReturn(status, response)
+
+            try:
+                with connection.cursor() as cursor:
+                    sql_get_user = "SELECT * FROM `users` WHERE id = %s"
+                    cursor.execute(sql_get_user, u_id)
+                    row = cursor.fetchone()
+
+                    if row:
+                        try:
+                            decrypted_password = crypto.decrypt(row['password'])
+                        except Exception as decrypt_error:
+                            status = SQLStat.err_decrypt_error()
+                            response['error'] = f"Decryption failed: {decrypt_error}"
+                            return SQLReturn(status, response)
+                        
+                        
+                        code, parser_data = parser.get_groups(row['login'], decrypted_password)
+
+                        if code != 0:
+                            status = SQLStat.err_auth_failed()
+                            response['error'] = parser_data  
+                            return SQLReturn(status, response)
+                        
+                        
+                        cursor.execute("SELECT COUNT(id) as count FROM `groups`")
+                        row = cursor.fetchone()
+                        response['row_deleted'] = row['count']
+
+                        cursor.execute("TRUNCATE TABLE `groups`")
+
+                        counter = 0
+                        for group in parser_data:
+                            counter += 1
+                            sql_add_group = "INSERT INTO `groups`(`name`, `value`) VALUES (%s,%s)"
+                            cursor.execute(sql_add_group, (group['group'], group['value']))
+
+                        
+                        connection.commit()
+                        
+                        response['row_add'] = counter
+                        status = SQLStat.succ()
+
+                    else:
+                        status = SQLStat.err_not_found()
+                        response['error'] = 'User not found by id'
+                        return SQLReturn(status, response)
+                    
+
+            except pymysql.MySQLError as e:
+                status = SQLStat.err_request()
+                response['error'] = str(e)
+                if connection:
+                    connection.rollback()
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+
+            finally:
+                if connection:
+                    connection.close()
+
+        except Exception as e:
+            status = SQLStat.err_db_con()
+            response['error'] = str(e)
+            if config.debug_mode:
+                print_debug(func_name, status, response)
+
+        
+        if status[0] == 0:
+            response.pop('error', None)
+        
+        if config.debug_mode and status[0] != 0:
+            print_debug(func_name, status, response)
+
+        return SQLReturn(status, response)
+
 
 
 
