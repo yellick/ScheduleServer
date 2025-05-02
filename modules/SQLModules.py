@@ -117,7 +117,12 @@ class SQL:
 
                     if row and crypto.decrypt(row['password']) == password:
                         status = SQLStat.succ()
-                        response['user'] = dict(row) 
+
+                        response['user'] = {
+                            'id': row['id'],
+                            'name': row['name'],
+                            'email': row['email']
+                        }
                         response['dataType'] = 'db'                      
                     else:
                         code, parser_data = parser.get_user_data(login, password)
@@ -142,7 +147,12 @@ class SQL:
                             
                             if row and crypto.decrypt(row['password']) == password:
                                 status = SQLStat.succ()
-                                response['user'] = dict(row)
+                                
+                                response['user'] = {
+                                    'id': row['id'],
+                                    'name': row['name'],
+                                    'email': row['email']
+                                }
                                 response['dataType'] = 'parced'  
                             else:
                                 status = SQLStat.err_not_found()
@@ -172,6 +182,66 @@ class SQL:
         
         if status[0] == 0:
             response.pop('error', None)
+        
+        if config.debug_mode and status[0] != 0:
+            print_debug(func_name, status, response)
+
+        return SQLReturn(status, response)
+
+
+    @staticmethod 
+    def check_user(u_id):
+        func_name = inspect.currentframe().f_code.co_name
+        status = SQLStat.err_unknown()
+        response = {'error': None}
+
+        try:
+            connection = connect_to_db()
+            if connection is None:
+                status = SQLStat.err_db_con()
+                response['error'] = 'Database connection failed'
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+                return SQLReturn(status, response)
+
+            try:
+                with connection.cursor() as cursor:
+                    sql_get_user = "SELECT * FROM `users` WHERE id = %s"
+                    cursor.execute(sql_get_user, u_id)
+                    row = cursor.fetchone()
+
+                    if row:
+                        status = SQLStat.succ()
+
+                    else:
+                        status = SQLStat.err_not_found()
+                        response['error'] = 'User not found by id'
+                        return SQLReturn(status, response)
+                    
+
+            except pymysql.MySQLError as e:
+                status = SQLStat.err_request()
+                response['error'] = str(e)
+                if connection:
+                    connection.rollback()
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+
+            finally:
+                if connection:
+                    connection.close()
+
+        except Exception as e:
+            status = SQLStat.err_db_con()
+            response['error'] = str(e)
+            if config.debug_mode:
+                print_debug(func_name, status, response)
+
+        
+        if status[0] == 0:
+            response.pop('error', None)
+
+        response = None
         
         if config.debug_mode and status[0] != 0:
             print_debug(func_name, status, response)
@@ -256,7 +326,14 @@ class SQL:
                             status = SQLStat.succ()
 
                         else:
-                            response['themes'] = themes
+                            response['themes'] = [
+                                {
+                                    "type": theme["type"],
+                                    "theme": theme["theme"],
+                                    "curator": theme["curator"]
+                                }
+                                for theme in themes
+                            ]
                             response['dataType'] = 'db'
                             status = SQLStat.succ()
 
@@ -291,8 +368,8 @@ class SQL:
             print_debug(func_name, status, response)
 
         return SQLReturn(status, response)
-
-
+    
+    
     @staticmethod
     def get_skipping(u_id):
         func_name = inspect.currentframe().f_code.co_name
@@ -566,211 +643,6 @@ class SQL:
             response.pop('error', None)
         
         if config.debug_mode and status[0] != 0:
-            print_debug(func_name, status, response)
-
-        return SQLReturn(status, response)
-
-
-
-
-    @staticmethod
-    def get_schedule_by_group(group_id,):
-        func_name = inspect.currentframe().f_code.co_name
-
-        status = SQLStat.err_unknown()
-        response = []
-
-        try:
-            connection = connect_to_db()
-
-            if connection is None:
-                status = SQLStat.err_request()
-
-                # debug
-                if config.debug_mode:
-                    print_debug(func_name, status, response)
-
-                return SQLReturn(status, response)
-
-            try:
-                with connection.cursor() as cursor:
-                    sql = """
-                            SELECT 
-	                            teachers.name, 
-                                subjects.name, 
-                                lesson_date, 
-                                time_type, 
-                                times.time_from, 
-                                times.time_to, 
-                                room 
-                            FROM schedule 
-                            INNER JOIN teachers ON teachers.id = teacher_id 
-                            INNER JOIN subjects ON subjects.id = subject_id 
-                            INNER JOIN times ON times.id = time_type 
-                            WHERE group_id = %s 
-                          """
-                    
-                    cursor.execute(sql, group_id)
-                    rows = cursor.fetchall()
-
-                    
-                    if rows:
-                        rows = change_date_on_schedule(rows)        
-
-                        response = rows
-                        status = SQLStat.succ()
-
-                    else:
-                        status = SQLStat.err_not_found()
-                    
-                    # debug
-                    if config.debug_mode:
-                        print_debug(func_name, status, response)
-
-            except pymysql.MySQLError as e:
-                status = SQLStat.err_request()
-                response = e
-
-                # debug
-                if config.debug_mode:  
-                    print_debug(func_name, status, response)
-
-            finally:
-                connection.close()
-
-        except Exception as e:
-            status = SQLStat.err_db_con()
-            response = e
-
-            # debug
-            if config.debug_mode:
-                print_debug(func_name, status, response)
-        
-        return SQLReturn(status, response)
-
-
-    @staticmethod
-    def start_session(user_id):
-        func_name = inspect.currentframe().f_code.co_name
-
-        status = SQLStat.err_unknown()
-        response = []
-
-        try:
-            connection = connect_to_db()
-
-            if connection is None:
-                status = SQLStat.err_request()
-
-                # debug
-                if config.debug_mode:
-                    print_debug(func_name, status, response)
-
-                return SQLReturn(status, response)
-
-            try:
-                with connection.cursor() as cursor:
-                    sql = "DELETE FROM `sessions` WHERE user_id = %s"
-                    cursor.execute(sql, (user_id,))
-
-                    sql = "INSERT INTO `sessions`(`session_hash`, `user_id`, `date`) VALUES (%s, %s, %s)"
-
-                    #############################################
-                    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-5]
-                    session_hash = date + str(user_id) + config.salt
-                    session_hash = hash_string(session_hash)
-
-                    cursor.execute(sql, (session_hash, user_id, date))
-
-                    status = SQLStat.succ()
-                    response = {'session_hash': session_hash}
-
-                    # debug
-                    if config.debug_mode:
-                        print_debug(func_name, status, response)
-
-            except pymysql.MySQLError as e:
-                status = SQLStat.err_request()
-                response = e
-
-                # debug
-                if config.debug_mode:
-                    print_debug(func_name, status, response)
-
-            finally:
-                connection.close()
-
-        except Exception as e:
-            status = SQLStat.err_db_conn()
-            response = f"{e}"
-
-            # debug
-            if config.debug_mode:
-                print_debug(func_name, status, response)
-
-        return SQLReturn(status, response)
-
-
-    @staticmethod
-    def check_session(hash):
-        func_name = inspect.currentframe().f_code.co_name
-
-        status = SQLStat.err_unknown()
-        response = False
-
-        try:
-            connection = connect_to_db()
-
-            if connection is None:
-                status = SQLStat.err_request()
-
-                # debug
-                if config.debug_mode:
-                    print_debug(func_name, status, response)
-
-                return SQLReturn(status, response)
-
-            try:
-                with connection.cursor() as cursor:
-                    sql = "SELECT user_id FROM `sessions` WHERE session_hash = %s"
-                    cursor.execute(sql, hash)
-                    row = cursor.fetchall()
-
-                    if row:
-                        date = datetime.now().strftime('%Y-%m-%d')
-                        sql = "UPDATE sessions SET date = %s WHERE session_hash = %s"
-                        cursor.execute(sql, (date, hash))
-
-                        response = True
-                        status = SQLStat.succ()
-                    else:
-                        status = SQLStat.err_not_found()
-
-                    # debug
-                    if config.debug_mode:
-                        print_debug(func_name, status, response)
-
-            except pymysql.MySQLError as e:
-                status = SQLStat.err_request()
-                response = str(e)  # Преобразуем исключение в строку
-
-                # debug
-                if config.debug_mode:
-                    print_debug(func_name, status, response)
-
-            finally:
-                connection.close()
-
-        except Exception as e:
-            status = SQLStat.err_db_conn()
-            response = str(e)  # Преобразуем исключение в строку
-
-            # debug
-            if config.debug_mode:
-                print_debug(func_name, status, response)
-
-        # debug
-        if status == SQLStat.err_unknown() and config.debug_mode:
             print_debug(func_name, status, response)
 
         return SQLReturn(status, response)

@@ -21,6 +21,20 @@ def auth():
             "response": {"error": str(e)}
         }), 500
 
+def check_user():
+    try:
+        data = request.get_json()
+        user_id = data.get('u_id')
+
+        response = SQL.check_user(user_id)
+        return jsonify(response.to_dict())
+    except Exception as e:
+        return jsonify({
+            "code": -1,
+            "status": "Internal server error",
+            "response": {"error": str(e)}
+        }), 500
+
 def get_themes():    
     try:
         data = request.get_json()
@@ -49,6 +63,12 @@ def get_skipping():
             "response": {"error": str(e)}
         }), 500
 
+def get_schedule():
+    return jsonify({
+        'code': 1,
+        'message': 'route is not ready'
+    })
+
 def get_groups():
     response = SQL.get_groups().to_dict()
     return jsonify(response)
@@ -66,25 +86,3 @@ def update_groups():
             "status": "Internal server error",
             "response": {"error": str(e)}
         }), 500
-
-
-def get_schedule():
-    data = request.get_json()
-    group_id = data.get('group_id')
-
-    response = SQL.get_schedule_by_group(group_id).to_dict()
-    return jsonify(response)
-
-def start_session():
-    data = request.get_json()
-    user_id = data.get('user_id')
-
-    response = SQL.start_session(user_id).to_dict()
-    return jsonify(response)
-
-def check_session():
-    data = request.get_json()
-    hash = data.get('hash')
-
-    response = SQL.check_session(hash).to_dict()
-    return jsonify(response)

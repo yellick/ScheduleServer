@@ -7,14 +7,16 @@ CORS(app)
 
 
 app.route('/check_connection', methods=['GET', 'POST'])(check_connection)
-app.route('/auth', methods=['POST', 'GET'])(auth)
-app.route('/themes', methods=['POST', 'GET'])(get_themes)
-app.route('/skipping', methods=['POST', 'GET'])(get_skipping)
-app.route('/groups', methods=['POST', 'GET'])(get_groups)
-app.route('/update_groups', methods=['POST', 'GET'])(update_groups)
+app.route('/auth', methods=['POST'])(auth)
+app.route('/check_user', methods=['POST'])(check_user)
+app.route('/themes', methods=['POST'])(get_themes)
+app.route('/skipping', methods=['POST'])(get_skipping)
+app.route('/schedule', methods=['POST'])(get_schedule)
+app.route('/groups', methods=['POST'])(get_groups)
+app.route('/update_groups', methods=['POST'])(update_groups)
 
 
-@app.route('/', methods=['GET'])
+#@app.route('/', methods=['GET'])
 def index():
     routes_info = []
     for rule in app.url_map.iter_rules():

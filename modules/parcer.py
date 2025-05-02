@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 
 class Parser:
     def __init__(self):
-        self.session = requests.Session()
         self.base_url = "https://moodle.preco.ru"
         self.urls = {
             'login': f"{self.base_url}/login/index.php",
@@ -12,9 +11,16 @@ class Parser:
             'skipping': f"{self.base_url}/blocks/lkstudents/missedclass.php",
             'schedule': f"{self.base_url}/blocks/lkstudents/sheduleonline.php"
         }
+        self.session = None  # Инициализируем сессию как None
+
+    def _reset_session(self):
+        """Сброс и создание новой сессии"""
+        self.session = requests.Session()
 
     def moodle_login(self, username, password):
         """Авторизация на Moodle"""
+        self._reset_session()
+        
         try:
             response = self.session.get(self.urls['login'])
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -33,6 +39,7 @@ class Parser:
 
     def get_user_data(self, username, password):
         """Получение данных пользователя"""
+        self._reset_session()
         code, msg = self.moodle_login(username, password)
         if code != 0:
             return (code, msg)
@@ -56,6 +63,7 @@ class Parser:
 
     def get_themes(self, username, password):
         """Получение списка тем/работ"""
+        self._reset_session()
         code, msg = self.moodle_login(username, password)
         if code != 0:
             return (code, msg)
@@ -84,6 +92,7 @@ class Parser:
 
     def get_skipping(self, username, password):
         """Получение данных о пропусках"""
+        self._reset_session()
         code, msg = self.moodle_login(username, password)
         if code != 0:
             return (code, msg)
@@ -162,6 +171,7 @@ class Parser:
 
     def get_groups(self, username, password):
         """Получение списка групп из расписания"""
+        self._reset_session()
         code, msg = self.moodle_login(username, password)
         if code != 0:
             return (code, msg)
@@ -190,5 +200,3 @@ class Parser:
             return (0, groups) if groups else (1, "No groups found")
         except Exception as e:
             return (1, f"Schedule retrieval error: {str(e)}")
-        
-    
