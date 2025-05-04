@@ -64,10 +64,19 @@ def get_skipping():
         }), 500
 
 def get_schedule():
-    return jsonify({
-        'code': 1,
-        'message': 'route is not ready'
-    })
+    try:
+        data = request.get_json()
+        user_id = data.get('u_id')
+        group_id = data.get('group_id')
+        
+        response = SQL.get_schedule(user_id, group_id)
+        return jsonify(response.to_dict())
+    except Exception as e:
+        return jsonify({
+            "code": -1,
+            "status": "Internal server error",
+            "response": {"error": str(e)}
+        }), 500
 
 def get_groups():
     response = SQL.get_groups().to_dict()

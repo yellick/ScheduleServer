@@ -508,6 +508,189 @@ class SQL:
 
 
     @staticmethod 
+    def get_schedule(u_id, group_id):
+        func_name = inspect.currentframe().f_code.co_name
+        status = SQLStat.err_unknown()
+        response = {'error': None, 'schedule': None}
+
+        try:
+            connection = connect_to_db()
+            if connection is None:
+                status = SQLStat.err_db_con()
+                response['error'] = 'Database connection failed'
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+                return SQLReturn(status, response)
+
+            try:
+                with connection.cursor() as cursor:
+                    response['schedule'] = [
+                        {
+                            "date": "ПН. 28.04.2025",
+                            "lessons": [
+                                {
+                                    "lesson_num": 1,
+                                    "time_from": "8:30",
+                                    "time_to": "10:00",
+                                    "lesson_name": "Математика А\nЗенова И.А.\n303"
+                                },
+                                {
+                                    "lesson_num": 2,
+                                    "time_from": "10:10",
+                                    "time_to": "11:40",
+                                    "lesson_name": "Информатика А\nКурегова Ю.В.\n404"
+                                }
+                            ]
+                        },
+                        {
+                            "date": "ВТ. 29.04.2025",
+                            "lessons": [
+                                {
+                                    "lesson_num": 1,
+                                    "time_from": "8:30",
+                                    "time_to": "10:00",
+                                    "lesson_name": "Литература А\nСтепанова С.Л.\n401"
+                                },
+                                {
+                                    "lesson_num": 2,
+                                    "time_from": "10:10",
+                                    "time_to": "11:40",
+                                    "lesson_name": "Химия А\nКожевникова Е.Б.\n401"
+                                },
+                                {
+                                    "lesson_num": 3,
+                                    "time_from": "12:00",
+                                    "time_to": "13:30",
+                                    "lesson_name": "Общество А\nДружинин В.А.\n401"
+                                }
+                            ]
+                        },
+                        {
+                            "date": "СР. 30.04.2025",
+                            "lessons": [
+                                {
+                                    "lesson_num": 2,
+                                    "time_from": "10:10",
+                                    "time_to": "11:40",
+                                    "lesson_name": "Ин.яз А\nКорчуганова Д.А.\n401"
+                                },
+                                {
+                                    "lesson_num": 3,
+                                    "time_from": "12:00",
+                                    "time_to": "13:30",
+                                    "lesson_name": "Общество А\nДружинин В.А.\n408"
+                                },
+                                {
+                                    "lesson_num": 4,
+                                    "time_from": "13:50",
+                                    "time_to": "15:20",
+                                    "lesson_name": "Рус.яз А\nСтепанова С.Л.\n408"
+                                },
+                                {
+                                    "lesson_num": 5,
+                                    "time_from": "15:30",
+                                    "time_to": "17:00",
+                                    "lesson_name": "Физ-ра А\nЖусупов А.Д.\nСпортзал"
+                                }
+                            ]
+                        },
+                        {
+                            "date": "ПН. 05.05.2025",
+                            "lessons": [
+                                {
+                                    "lesson_num": 1,
+                                    "time_from": "8:30",
+                                    "time_to": "10:00",
+                                    "lesson_name": "Математика А\nЗенова И.А.\n303"
+                                },
+                                {
+                                    "lesson_num": 2,
+                                    "time_from": "10:10",
+                                    "time_to": "11:40",
+                                    "lesson_name": "Информатика А\nКурегова Ю.В.\n404"
+                                }
+                            ]
+                        },
+                        {
+                            "date": "ВТ. 06.05.2025",
+                            "lessons": [
+                                {
+                                    "lesson_num": 1,
+                                    "time_from": "8:30",
+                                    "time_to": "10:00",
+                                    "lesson_name": "История А\nПанова Л.В.\n401"
+                                },
+                                {
+                                    "lesson_num": 2,
+                                    "time_from": "10:10",
+                                    "time_to": "11:40",
+                                    "lesson_name": "Химия А\nКожевникова Е.Б.\n401"
+                                }
+                            ]
+                        },
+                        {
+                            "date": "СР. 07.05.2025",
+                            "lessons": [
+                                {
+                                    "lesson_num": 2,
+                                    "time_from": "10:10",
+                                    "time_to": "11:40",
+                                    "lesson_name": "Ин.яз А\nКорчуганова Д.А.\n408"
+                                },
+                                {
+                                    "lesson_num": 3,
+                                    "time_from": "12:00",
+                                    "time_to": "13:30",
+                                    "lesson_name": "Общество А\nДружинин В.А.\n408"
+                                },
+                                {
+                                    "lesson_num": 4,
+                                    "time_from": "13:50",
+                                    "time_to": "15:20",
+                                    "lesson_name": "История А\nПанова Л.В.\n408"
+                                },
+                                {
+                                    "lesson_num": 5,
+                                    "time_from": "15:30",
+                                    "time_to": "17:00",
+                                    "lesson_name": "Физ-ра А\nЖусупов А.Д.\nСпортзал"
+                                }
+                            ]
+                        }
+                    ]
+                    
+                    status = SQLStat.succ()
+                    
+
+            except pymysql.MySQLError as e:
+                status = SQLStat.err_request()
+                response['error'] = str(e)
+                if connection:
+                    connection.rollback()
+                if config.debug_mode:
+                    print_debug(func_name, status, response)
+
+            finally:
+                if connection:
+                    connection.close()
+
+        except Exception as e:
+            status = SQLStat.err_db_con()
+            response['error'] = str(e)
+            if config.debug_mode:
+                print_debug(func_name, status, response)
+
+        
+        if status[0] == 0:
+            response.pop('error', None)
+        
+        if config.debug_mode and status[0] != 0:
+            print_debug(func_name, status, response)
+
+        return SQLReturn(status, response)
+    
+
+    @staticmethod 
     def get_groups():
         func_name = inspect.currentframe().f_code.co_name
         status = SQLStat.err_unknown()
