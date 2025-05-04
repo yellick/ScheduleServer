@@ -532,13 +532,17 @@ class SQL:
                                     "lesson_num": 1,
                                     "time_from": "8:30",
                                     "time_to": "10:00",
-                                    "lesson_name": "Математика А\nЗенова И.А.\n303"
+                                    "lesson_name": "Математика",
+                                    "teacher": "Зенова И.А.",
+                                    "room": "303"
                                 },
                                 {
                                     "lesson_num": 2,
                                     "time_from": "10:10",
                                     "time_to": "11:40",
-                                    "lesson_name": "Информатика А\nКурегова Ю.В.\n404"
+                                    "lesson_name": "Информатика",
+                                    "teacher": "Курегова Ю.В.",
+                                    "room": "404"
                                 }
                             ]
                         },
@@ -549,19 +553,25 @@ class SQL:
                                     "lesson_num": 1,
                                     "time_from": "8:30",
                                     "time_to": "10:00",
-                                    "lesson_name": "Литература А\nСтепанова С.Л.\n401"
+                                    "lesson_name": "Литература",
+                                    "teacher": "Степанова С.Л.",
+                                    "room": "401"
                                 },
                                 {
                                     "lesson_num": 2,
                                     "time_from": "10:10",
                                     "time_to": "11:40",
-                                    "lesson_name": "Химия А\nКожевникова Е.Б.\n401"
+                                    "lesson_name": "Химия",
+                                    "teacher": "Кожевникова Е.Б.",
+                                    "room": "401"
                                 },
                                 {
                                     "lesson_num": 3,
                                     "time_from": "12:00",
                                     "time_to": "13:30",
-                                    "lesson_name": "Общество А\nДружинин В.А.\n401"
+                                    "lesson_name": "Общество",
+                                    "teacher": "Дружинин В.А.",
+                                    "room": "401"
                                 }
                             ]
                         },
@@ -572,25 +582,33 @@ class SQL:
                                     "lesson_num": 2,
                                     "time_from": "10:10",
                                     "time_to": "11:40",
-                                    "lesson_name": "Ин.яз А\nКорчуганова Д.А.\n401"
+                                    "lesson_name": "Ин.яз",
+                                    "teacher": "Корчуганова Д.А.",
+                                    "room": "401"
                                 },
                                 {
                                     "lesson_num": 3,
                                     "time_from": "12:00",
                                     "time_to": "13:30",
-                                    "lesson_name": "Общество А\nДружинин В.А.\n408"
+                                    "lesson_name": "Общество",
+                                    "teacher": "Дружинин В.А.",
+                                    "room": "408"
                                 },
                                 {
                                     "lesson_num": 4,
                                     "time_from": "13:50",
                                     "time_to": "15:20",
-                                    "lesson_name": "Рус.яз А\nСтепанова С.Л.\n408"
+                                    "lesson_name": "Рус.яз",
+                                    "teacher": "Степанова С.Л.",
+                                    "room": "408"
                                 },
                                 {
                                     "lesson_num": 5,
                                     "time_from": "15:30",
                                     "time_to": "17:00",
-                                    "lesson_name": "Физ-ра А\nЖусупов А.Д.\nСпортзал"
+                                    "lesson_name": "Физ-ра",
+                                    "teacher": "Жусупов А.Д.",
+                                    "room": "Спортзал"
                                 }
                             ]
                         },
@@ -601,13 +619,17 @@ class SQL:
                                     "lesson_num": 1,
                                     "time_from": "8:30",
                                     "time_to": "10:00",
-                                    "lesson_name": "Математика А\nЗенова И.А.\n303"
+                                    "lesson_name": "Математика",
+                                    "teacher": "Зенова И.А.",
+                                    "room": "303"
                                 },
                                 {
                                     "lesson_num": 2,
                                     "time_from": "10:10",
                                     "time_to": "11:40",
-                                    "lesson_name": "Информатика А\nКурегова Ю.В.\n404"
+                                    "lesson_name": "Информатика",
+                                    "teacher": "Курегова Ю.В.",
+                                    "room": "404"
                                 }
                             ]
                         },
@@ -618,13 +640,17 @@ class SQL:
                                     "lesson_num": 1,
                                     "time_from": "8:30",
                                     "time_to": "10:00",
-                                    "lesson_name": "История А\nПанова Л.В.\n401"
+                                    "lesson_name": "История",
+                                    "teacher": "Панова Л.В.",
+                                    "room": "401"
                                 },
                                 {
                                     "lesson_num": 2,
                                     "time_from": "10:10",
                                     "time_to": "11:40",
-                                    "lesson_name": "Химия А\nКожевникова Е.Б.\n401"
+                                    "lesson_name": "Химия",
+                                    "teacher": "Кожевникова Е.Б.",
+                                    "room": "401"
                                 }
                             ]
                         },
@@ -635,25 +661,33 @@ class SQL:
                                     "lesson_num": 2,
                                     "time_from": "10:10",
                                     "time_to": "11:40",
-                                    "lesson_name": "Ин.яз А\nКорчуганова Д.А.\n408"
+                                    "lesson_name": "Ин.яз",
+                                    "teacher": "Корчуганова Д.А.",
+                                    "room": "408"
                                 },
                                 {
                                     "lesson_num": 3,
                                     "time_from": "12:00",
                                     "time_to": "13:30",
-                                    "lesson_name": "Общество А\nДружинин В.А.\n408"
+                                    "lesson_name": "Общество",
+                                    "teacher": "Дружинин В.А.",
+                                    "room": "408"
                                 },
                                 {
                                     "lesson_num": 4,
                                     "time_from": "13:50",
                                     "time_to": "15:20",
-                                    "lesson_name": "История А\nПанова Л.В.\n408"
+                                    "lesson_name": "История",
+                                    "teacher": "Панова Л.В.",
+                                    "room": "408"
                                 },
                                 {
                                     "lesson_num": 5,
                                     "time_from": "15:30",
                                     "time_to": "17:00",
-                                    "lesson_name": "Физ-ра А\nЖусупов А.Д.\nСпортзал"
+                                    "lesson_name": "Физ-ра",
+                                    "teacher": "Жусупов А.Д.",
+                                    "room": "Спортзал"
                                 }
                             ]
                         }
