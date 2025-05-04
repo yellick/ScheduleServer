@@ -524,174 +524,184 @@ class SQL:
 
             try:
                 with connection.cursor() as cursor:
-                    response['schedule'] = [
-                        {
-                            "date": "ПН. 28.04.2025",
-                            "lessons": [
-                                {
-                                    "lesson_num": 1,
-                                    "time_from": "8:30",
-                                    "time_to": "10:00",
-                                    "lesson_name": "Математика",
-                                    "teacher": "Зенова И.А.",
-                                    "room": "303"
-                                },
-                                {
-                                    "lesson_num": 2,
-                                    "time_from": "10:10",
-                                    "time_to": "11:40",
-                                    "lesson_name": "Информатика",
-                                    "teacher": "Курегова Ю.В.",
-                                    "room": "404"
-                                }
-                            ]
-                        },
-                        {
-                            "date": "ВТ. 29.04.2025",
-                            "lessons": [
-                                {
-                                    "lesson_num": 1,
-                                    "time_from": "8:30",
-                                    "time_to": "10:00",
-                                    "lesson_name": "Литература",
-                                    "teacher": "Степанова С.Л.",
-                                    "room": "401"
-                                },
-                                {
-                                    "lesson_num": 2,
-                                    "time_from": "10:10",
-                                    "time_to": "11:40",
-                                    "lesson_name": "Химия",
-                                    "teacher": "Кожевникова Е.Б.",
-                                    "room": "401"
-                                },
-                                {
-                                    "lesson_num": 3,
-                                    "time_from": "12:00",
-                                    "time_to": "13:30",
-                                    "lesson_name": "Общество",
-                                    "teacher": "Дружинин В.А.",
-                                    "room": "401"
-                                }
-                            ]
-                        },
-                        {
-                            "date": "СР. 30.04.2025",
-                            "lessons": [
-                                {
-                                    "lesson_num": 2,
-                                    "time_from": "10:10",
-                                    "time_to": "11:40",
-                                    "lesson_name": "Ин.яз",
-                                    "teacher": "Корчуганова Д.А.",
-                                    "room": "401"
-                                },
-                                {
-                                    "lesson_num": 3,
-                                    "time_from": "12:00",
-                                    "time_to": "13:30",
-                                    "lesson_name": "Общество",
-                                    "teacher": "Дружинин В.А.",
-                                    "room": "408"
-                                },
-                                {
-                                    "lesson_num": 4,
-                                    "time_from": "13:50",
-                                    "time_to": "15:20",
-                                    "lesson_name": "Рус.яз",
-                                    "teacher": "Степанова С.Л.",
-                                    "room": "408"
-                                },
-                                {
-                                    "lesson_num": 5,
-                                    "time_from": "15:30",
-                                    "time_to": "17:00",
-                                    "lesson_name": "Физ-ра",
-                                    "teacher": "Жусупов А.Д.",
-                                    "room": "Спортзал"
-                                }
-                            ]
-                        },
-                        {
-                            "date": "ПН. 05.05.2025",
-                            "lessons": [
-                                {
-                                    "lesson_num": 1,
-                                    "time_from": "8:30",
-                                    "time_to": "10:00",
-                                    "lesson_name": "Математика",
-                                    "teacher": "Зенова И.А.",
-                                    "room": "303"
-                                },
-                                {
-                                    "lesson_num": 2,
-                                    "time_from": "10:10",
-                                    "time_to": "11:40",
-                                    "lesson_name": "Информатика",
-                                    "teacher": "Курегова Ю.В.",
-                                    "room": "404"
-                                }
-                            ]
-                        },
-                        {
-                            "date": "ВТ. 06.05.2025",
-                            "lessons": [
-                                {
-                                    "lesson_num": 1,
-                                    "time_from": "8:30",
-                                    "time_to": "10:00",
-                                    "lesson_name": "История",
-                                    "teacher": "Панова Л.В.",
-                                    "room": "401"
-                                },
-                                {
-                                    "lesson_num": 2,
-                                    "time_from": "10:10",
-                                    "time_to": "11:40",
-                                    "lesson_name": "Химия",
-                                    "teacher": "Кожевникова Е.Б.",
-                                    "room": "401"
-                                }
-                            ]
-                        },
-                        {
-                            "date": "СР. 07.05.2025",
-                            "lessons": [
-                                {
-                                    "lesson_num": 2,
-                                    "time_from": "10:10",
-                                    "time_to": "11:40",
-                                    "lesson_name": "Ин.яз",
-                                    "teacher": "Корчуганова Д.А.",
-                                    "room": "408"
-                                },
-                                {
-                                    "lesson_num": 3,
-                                    "time_from": "12:00",
-                                    "time_to": "13:30",
-                                    "lesson_name": "Общество",
-                                    "teacher": "Дружинин В.А.",
-                                    "room": "408"
-                                },
-                                {
-                                    "lesson_num": 4,
-                                    "time_from": "13:50",
-                                    "time_to": "15:20",
-                                    "lesson_name": "История",
-                                    "teacher": "Панова Л.В.",
-                                    "room": "408"
-                                },
-                                {
-                                    "lesson_num": 5,
-                                    "time_from": "15:30",
-                                    "time_to": "17:00",
-                                    "lesson_name": "Физ-ра",
-                                    "teacher": "Жусупов А.Д.",
-                                    "room": "Спортзал"
-                                }
-                            ]
-                        }
-                    ]
+                    if group_id == 1:
+                        response['schedule'] = [
+                            {
+                                "date": "ПН. 28.04.2025",
+                                "lessons": [
+                                    {
+                                        "lesson_num": 1,
+                                        "time_from": "8:30",
+                                        "time_to": "10:00",
+                                        "lesson_name": "Математика",
+                                        "teacher": "Зенова И.А.",
+                                        "room": "303"
+                                    },
+                                    {
+                                        "lesson_num": 2,
+                                        "time_from": "10:10",
+                                        "time_to": "11:40",
+                                        "lesson_name": "Информатика",
+                                        "teacher": "Курегова Ю.В.",
+                                        "room": "404"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "ВТ. 29.04.2025",
+                                "lessons": [
+                                    {
+                                        "lesson_num": 1,
+                                        "time_from": "8:30",
+                                        "time_to": "10:00",
+                                        "lesson_name": "Литература",
+                                        "teacher": "Степанова С.Л.",
+                                        "room": "401"
+                                    },
+                                    {
+                                        "lesson_num": 2,
+                                        "time_from": "10:10",
+                                        "time_to": "11:40",
+                                        "lesson_name": "Химия",
+                                        "teacher": "Кожевникова Е.Б.",
+                                        "room": "401"
+                                    },
+                                    {
+                                        "lesson_num": 3,
+                                        "time_from": "12:00",
+                                        "time_to": "13:30",
+                                        "lesson_name": "Общество",
+                                        "teacher": "Дружинин В.А.",
+                                        "room": "401"
+                                    }
+                                ]
+                            },
+                        ]
+                    
+                    if group_id == 2:
+                        response['schedule'] = [
+                            {
+                                "date": "СР. 30.04.2025",
+                                "lessons": [
+                                    {
+                                        "lesson_num": 2,
+                                        "time_from": "10:10",
+                                        "time_to": "11:40",
+                                        "lesson_name": "Ин.яз",
+                                        "teacher": "Корчуганова Д.А.",
+                                        "room": "401"
+                                    },
+                                    {
+                                        "lesson_num": 3,
+                                        "time_from": "12:00",
+                                        "time_to": "13:30",
+                                        "lesson_name": "Общество",
+                                        "teacher": "Дружинин В.А.",
+                                        "room": "408"
+                                    },
+                                    {
+                                        "lesson_num": 4,
+                                        "time_from": "13:50",
+                                        "time_to": "15:20",
+                                        "lesson_name": "Рус.яз",
+                                        "teacher": "Степанова С.Л.",
+                                        "room": "408"
+                                    },
+                                    {
+                                        "lesson_num": 5,
+                                        "time_from": "15:30",
+                                        "time_to": "17:00",
+                                        "lesson_name": "Физ-ра",
+                                        "teacher": "Жусупов А.Д.",
+                                        "room": "Спортзал"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "ПН. 05.05.2025",
+                                "lessons": [
+                                    {
+                                        "lesson_num": 1,
+                                        "time_from": "8:30",
+                                        "time_to": "10:00",
+                                        "lesson_name": "Математика",
+                                        "teacher": "Зенова И.А.",
+                                        "room": "303"
+                                    },
+                                    {
+                                        "lesson_num": 2,
+                                        "time_from": "10:10",
+                                        "time_to": "11:40",
+                                        "lesson_name": "Информатика",
+                                        "teacher": "Курегова Ю.В.",
+                                        "room": "404"
+                                    }
+                                ]
+                            },
+                        ]
+
+                    if group_id == 3:
+                        response['schedule'] = [
+                            {
+                                "date": "ВТ. 06.05.2025",
+                                "lessons": [
+                                    {
+                                        "lesson_num": 1,
+                                        "time_from": "8:30",
+                                        "time_to": "10:00",
+                                        "lesson_name": "История",
+                                        "teacher": "Панова Л.В.",
+                                        "room": "401"
+                                    },
+                                    {
+                                        "lesson_num": 2,
+                                        "time_from": "10:10",
+                                        "time_to": "11:40",
+                                        "lesson_name": "Химия",
+                                        "teacher": "Кожевникова Е.Б.",
+                                        "room": "401"
+                                    }
+                                ]
+                            },
+                            {
+                                "date": "СР. 07.05.2025",
+                                "lessons": [
+                                    {
+                                        "lesson_num": 2,
+                                        "time_from": "10:10",
+                                        "time_to": "11:40",
+                                        "lesson_name": "Ин.яз",
+                                        "teacher": "Корчуганова Д.А.",
+                                        "room": "408"
+                                    },
+                                    {
+                                        "lesson_num": 3,
+                                        "time_from": "12:00",
+                                        "time_to": "13:30",
+                                        "lesson_name": "Общество",
+                                        "teacher": "Дружинин В.А.",
+                                        "room": "408"
+                                    },
+                                    {
+                                        "lesson_num": 4,
+                                        "time_from": "13:50",
+                                        "time_to": "15:20",
+                                        "lesson_name": "История",
+                                        "teacher": "Панова Л.В.",
+                                        "room": "408"
+                                    },
+                                    {
+                                        "lesson_num": 5,
+                                        "time_from": "15:30",
+                                        "time_to": "17:00",
+                                        "lesson_name": "Физ-ра",
+                                        "teacher": "Жусупов А.Д.",
+                                        "room": "Спортзал"
+                                    }
+                                ]
+                            }
+                        ]
+
                     
                     status = SQLStat.succ()
                     
