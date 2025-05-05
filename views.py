@@ -66,10 +66,9 @@ def get_skipping():
 def get_schedule():
     try:
         data = request.get_json()
-        user_id = data.get('u_id')
         group_id = data.get('group_id')
         
-        response = SQL.get_schedule(user_id, group_id)
+        response = SQL.get_schedule(group_id)
         return jsonify(response.to_dict())
     except Exception as e:
         return jsonify({

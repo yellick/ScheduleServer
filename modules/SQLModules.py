@@ -507,8 +507,8 @@ class SQL:
         return SQLReturn(status, response)
 
 
-    @staticmethod 
-    def get_schedule(u_id, group_id):
+    @staticmethod
+    def get_schedule(group_id):
         func_name = inspect.currentframe().f_code.co_name
         status = SQLStat.err_unknown()
         response = {'error': None, 'schedule': None}
@@ -523,188 +523,38 @@ class SQL:
                 return SQLReturn(status, response)
 
             try:
-                with connection.cursor() as cursor:
-                    if group_id == 1:
-                        response['schedule'] = [
-                            {
-                                "date": "ПН. 28.04.2025",
-                                "lessons": [
-                                    {
-                                        "lesson_num": 1,
-                                        "time_from": "8:30",
-                                        "time_to": "10:00",
-                                        "lesson_name": "Математика",
-                                        "teacher": "Зенова И.А.",
-                                        "room": "303"
-                                    },
-                                    {
-                                        "lesson_num": 2,
-                                        "time_from": "10:10",
-                                        "time_to": "11:40",
-                                        "lesson_name": "Информатика",
-                                        "teacher": "Курегова Ю.В.",
-                                        "room": "404"
-                                    }
-                                ]
-                            },
-                            {
-                                "date": "ВТ. 29.04.2025",
-                                "lessons": [
-                                    {
-                                        "lesson_num": 1,
-                                        "time_from": "8:30",
-                                        "time_to": "10:00",
-                                        "lesson_name": "Литература",
-                                        "teacher": "Степанова С.Л.",
-                                        "room": "401"
-                                    },
-                                    {
-                                        "lesson_num": 2,
-                                        "time_from": "10:10",
-                                        "time_to": "11:40",
-                                        "lesson_name": "Химия",
-                                        "teacher": "Кожевникова Е.Б.",
-                                        "room": "401"
-                                    },
-                                    {
-                                        "lesson_num": 3,
-                                        "time_from": "12:00",
-                                        "time_to": "13:30",
-                                        "lesson_name": "Общество",
-                                        "teacher": "Дружинин В.А.",
-                                        "room": "401"
-                                    }
-                                ]
-                            },
-                        ]
-                    
-                    if group_id == 2:
-                        response['schedule'] = [
-                            {
-                                "date": "СР. 30.04.2025",
-                                "lessons": [
-                                    {
-                                        "lesson_num": 2,
-                                        "time_from": "10:10",
-                                        "time_to": "11:40",
-                                        "lesson_name": "Ин.яз",
-                                        "teacher": "Корчуганова Д.А.",
-                                        "room": "401"
-                                    },
-                                    {
-                                        "lesson_num": 3,
-                                        "time_from": "12:00",
-                                        "time_to": "13:30",
-                                        "lesson_name": "Общество",
-                                        "teacher": "Дружинин В.А.",
-                                        "room": "408"
-                                    },
-                                    {
-                                        "lesson_num": 4,
-                                        "time_from": "13:50",
-                                        "time_to": "15:20",
-                                        "lesson_name": "Рус.яз",
-                                        "teacher": "Степанова С.Л.",
-                                        "room": "408"
-                                    },
-                                    {
-                                        "lesson_num": 5,
-                                        "time_from": "15:30",
-                                        "time_to": "17:00",
-                                        "lesson_name": "Физ-ра",
-                                        "teacher": "Жусупов А.Д.",
-                                        "room": "Спортзал"
-                                    }
-                                ]
-                            },
-                            {
-                                "date": "ПН. 05.05.2025",
-                                "lessons": [
-                                    {
-                                        "lesson_num": 1,
-                                        "time_from": "8:30",
-                                        "time_to": "10:00",
-                                        "lesson_name": "Математика",
-                                        "teacher": "Зенова И.А.",
-                                        "room": "303"
-                                    },
-                                    {
-                                        "lesson_num": 2,
-                                        "time_from": "10:10",
-                                        "time_to": "11:40",
-                                        "lesson_name": "Информатика",
-                                        "teacher": "Курегова Ю.В.",
-                                        "room": "404"
-                                    }
-                                ]
-                            },
-                        ]
+                with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+                    # Получаем все дни расписания для указанной группы
+                    cursor.execute("""
+                        SELECT id, display_date 
+                        FROM schedule_days 
+                        WHERE group_id = %s 
+                        ORDER BY id
+                    """, (group_id,))
+                    schedule_days = cursor.fetchall()
 
-                    if group_id == 3:
-                        response['schedule'] = [
-                            {
-                                "date": "ВТ. 06.05.2025",
-                                "lessons": [
-                                    {
-                                        "lesson_num": 1,
-                                        "time_from": "8:30",
-                                        "time_to": "10:00",
-                                        "lesson_name": "История",
-                                        "teacher": "Панова Л.В.",
-                                        "room": "401"
-                                    },
-                                    {
-                                        "lesson_num": 2,
-                                        "time_from": "10:10",
-                                        "time_to": "11:40",
-                                        "lesson_name": "Химия",
-                                        "teacher": "Кожевникова Е.Б.",
-                                        "room": "401"
-                                    }
-                                ]
-                            },
-                            {
-                                "date": "СР. 07.05.2025",
-                                "lessons": [
-                                    {
-                                        "lesson_num": 2,
-                                        "time_from": "10:10",
-                                        "time_to": "11:40",
-                                        "lesson_name": "Ин.яз",
-                                        "teacher": "Корчуганова Д.А.",
-                                        "room": "408"
-                                    },
-                                    {
-                                        "lesson_num": 3,
-                                        "time_from": "12:00",
-                                        "time_to": "13:30",
-                                        "lesson_name": "Общество",
-                                        "teacher": "Дружинин В.А.",
-                                        "room": "408"
-                                    },
-                                    {
-                                        "lesson_num": 4,
-                                        "time_from": "13:50",
-                                        "time_to": "15:20",
-                                        "lesson_name": "История",
-                                        "teacher": "Панова Л.В.",
-                                        "room": "408"
-                                    },
-                                    {
-                                        "lesson_num": 5,
-                                        "time_from": "15:30",
-                                        "time_to": "17:00",
-                                        "lesson_name": "Физ-ра",
-                                        "teacher": "Жусупов А.Д.",
-                                        "room": "Спортзал"
-                                    }
-                                ]
-                            }
-                        ]
-
+                    result = []
                     
+                    for day in schedule_days:
+                        # Получаем все уроки для текущего дня
+                        cursor.execute("""
+                            SELECT lesson_num, time_from, time_to, 
+                                lesson_name, teacher, room 
+                            FROM lessons 
+                            WHERE day_id = %s 
+                            ORDER BY lesson_num
+                        """, (day['id'],))
+                        lessons = [dict(row) for row in cursor.fetchall()]
+
+                        # Формируем структуру дня
+                        day_data = {
+                            'date': day['display_date'],
+                            'lessons': lessons
+                        }
+                        result.append(day_data)
+                    
+                    response['schedule'] = result
                     status = SQLStat.succ()
-                    
 
             except pymysql.MySQLError as e:
                 status = SQLStat.err_request()
@@ -751,6 +601,7 @@ class SQL:
 
             try:
                 with connection.cursor() as cursor:
+                    # основная логика тут
                     cursor.execute("SELECT `id`, `name` FROM `groups`")
                     db_records = [dict(row) for row in cursor.fetchall()]
                     response['groups'] = db_records
